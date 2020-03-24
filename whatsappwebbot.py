@@ -12,12 +12,13 @@ from time import sleep
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
 PHONE_LIST_FILE=r'.\phones.txt'   # Assumes they are all valid
 COUNTRY_PREFIX = '972'
+MSG_TO_SEND = 'בלה בלה בלה'
 
 class WhatsupWebBot:
 	""" Automation class for whatsup """
 	group_name = 'LinkSendingBot'
 	link_to_send = 'TESTING123 www.google.com' # Dont forget to update it to whatever you want to send
-	welcome_msg = 'בלה בלה בלה'.encode('UTF-8').decode('UTF-8')
+	welcome_msg = MSG_TO_SEND.encode('UTF-8').decode('UTF-8')
 
 	def __init__(self, phone_numbers):
 		self.__connect()
@@ -38,14 +39,15 @@ class WhatsupWebBot:
 		user = self.driver.find_element_by_xpath(f'//span[@title = "{WhatsupWebBot.group_name}"]')
 		user.click()
 
-	def send_message_with_link(self, link):
+	def __send_welcome_message(self):
+		""" Sends the utf8 encoded welcome message """
 		send_message_js =  'var event = new InputEvent("input", {bubbles: true});'
 		send_message_js += 'var textbox = document.getElementsByClassName("_3u328")[1];'
 		send_message_js += f'textbox.textContent = "{WhatsupWebBot.welcome_msg}";'
 		send_message_js += 'textbox.dispatchEvent(event);'
 		send_message_js += 'document.querySelector("button._3M-N-").click()'
 		self.driver.execute_script(send_message_js)  # Sends the welcome message (encoded to utf-8)
-		self.__send_link(link)
+		
 
 	def __send_link(self, link):
 		""" Send's a message """
@@ -68,7 +70,8 @@ class WhatsupWebBot:
 			self.__send_link(link)
 			self.__click_on_last_sent_message()
 			if self.__is_valid_number():
-				self.send_message_with_link(WhatsupWebBot.link_to_send)
+				self.__send_welcome_message()
+				self.__send_link(WhatsupWebBot.link_to_send)
 			else:
 				self.driver.find_element_by_class_name('_2eK7W').click()
 				print(f'The message - {link} - contains bad number')
@@ -82,7 +85,6 @@ def main():
 
 	phones = ['']  # Enter phones here for testing
 	a = WhatsupWebBot(phones)
-	#WhatsupWebBot.link_to_send = MSG_TO_SEND
 	a.run()
 
 if __name__ == "__main__":
