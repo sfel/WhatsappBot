@@ -1,7 +1,7 @@
 """
 Whatsup Bot
 For dependencies:
-- pip install selenium
+- pipenv install selenium
 - I used webdriver for chrome version 80 (you can install yours by googling for it)
 For debugging use: python -i whatsappwebbot.py
 And then debug the driver by using a.driver object
@@ -11,11 +11,14 @@ from time import sleep
 
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
 PHONE_LIST_FILE=r'.\phones.txt'   # Assumes they are all valid
+COUNTRY_PREFIX = '972'
+MSG_TO_SEND = u'בלה בלה בלה'
+MSG_TO_SEND = MSG_TO_SEND.encode('utf-8')
 
 class WhatsupWebBot:
 	""" Automation class for whatsup """
 	group_name = 'LinkSendingBot'
-	link_to_send = 'TESTING123 ' # Dont forget to update it to whatever you want to send
+	link_to_send = 'TESTING123 www.google.com' # Dont forget to update it to whatever you want to send
 
 	def __init__(self, phone_numbers):
 		self.__connect()
@@ -61,16 +64,18 @@ class WhatsupWebBot:
 			else:
 				self.driver.find_element_by_class_name('_2eK7W').click()
 				print(f'The message - {msg} - contains bad number')
-
+a =None
 def main():
+	global a
 	with open(PHONE_LIST_FILE) as phone_file:
-		phones = [f'972{n[1:-1]}' for n in phone_file.readlines()]  # trim \n and first 0 of the number
+		phones = [f'{COUNTRY_PREFIX}{n[1:-1]}' for n in phone_file.readlines()]  # trim \n and first 0 of the number
 
 	print(phones)
-	
-	phones = []  # Enter phones here for testing
-	a = WhatsupWebBot([phones])
+
+	phones = ['']  # Enter phones here for testing
+	a = WhatsupWebBot(phones)
+	#WhatsupWebBot.link_to_send = MSG_TO_SEND
 	a.run()
 
-f__name__== "__main__"
+if __name__ == "__main__":
 	main()
