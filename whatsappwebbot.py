@@ -10,7 +10,7 @@ from selenium import webdriver
 from time import sleep
 
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
-PHONE_LIST_FILE=r'.\phones.txt'   # Assumes they are all valid
+PHONE_LIST_FILE=r'.\phones.txt'   # Must end with newline, Assumes phone numbers are valid
 MSG_TO_SEND = 'בלה בלה בלה'
 
 class WhatsappBotUser:
@@ -33,6 +33,11 @@ class WhatsappBotMessage:
 		return f'WhatsappBotMessage(addressee={str(self.addressee)}, welcome_msg={self.welcome_msg}, invitation_link={self.invitation_link})'
 	def __repr__(self):
 		return f'WhatsappBotMessage(addressee={repr(self.addressee)}, welcome_msg={self.welcome_msg}, invitation_link={self.invitation_link})'
+
+class WhatsappBotSettings:
+	def __init__(self, driver):
+		self.settings = dict(zip(['status', 'new_chat', 'general_menu','search', 'attach', 'conversation_menu'],driver.find_elements_by_class_name('_3j8Pd')))
+		#after self.settings['general menu'].click() ->  dict(zip(['new_group', 'profile', 'archieved','starred', 'settings', 'log_out'],driver.find_elements_by_class_name('_3cfBY')))
 
 class WhatsappWebBot:
 	""" Automation class for whatsup """
@@ -64,7 +69,6 @@ class WhatsappWebBot:
 		send_message_js += 'textbox.dispatchEvent(event);'
 		send_message_js += 'document.querySelector("button._3M-N-").click()'
 		self.driver.execute_script(send_message_js)  # Sends the welcome message (encoded to utf-8)
-		
 
 	def __send_link(self, link):
 		""" Send's a message """
@@ -102,8 +106,7 @@ a = None
 def main():
 	global a
 	with open(PHONE_LIST_FILE) as phone_file:
-		phones = [f'{COUNTRY_PREFIX}{n[1:-1]}' for n in phone_file.readlines()]  # trim \n and first 0 of the number
-
+		phones = [n[:-1] for n in phone_file.readlines()]  # trim \n 
 	print(phones)
 
 	phones = ['']  # Enter phones here for testing
