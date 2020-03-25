@@ -76,7 +76,7 @@ a = None
 def main():
 	global a
 	with open(PHONE_LIST_FILE) as phone_file:
-		phones = [f'{COUNTRY_PREFIX}{n[1:-1]}' for n in phone_file.readlines()]  # trim \n and first 0 of the number
+		phones = [f'{COUNTRY_PREFIX}{n.strip()[1:]}' for n in phone_file.readlines()]  # trim \n and first 0 of the number
 
 	print(phones)
 
