@@ -98,6 +98,8 @@ def main():
 	#WhatsupWebBot.link_to_send = MSG_TO_SEND
 	for phone_number in phones:
 		a.open_chat(phone_number)
+		sleep(5)
+		a.send_message_with_link(WhatsupWebBot.link_to_send)
 
 if __name__ == "__main__":
 	main()
