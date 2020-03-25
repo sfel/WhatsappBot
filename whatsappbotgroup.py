@@ -26,9 +26,13 @@ class WhatsappBotGroup:
 		""" Returns the element of the opeened group menue for inviting via link """
 		return {e.text:e for e in self.__get_group_segments()['participants'].find_elements_by_class_name('_2UaNq')}['Invite to group via link']
 
+	def __get_users_in_group(self):
+		""" Returns the users from an oppened group settings """
+		return self.__get_group_segments()['participants'].find_elements_by_class_name('X7YrQ')
+
 	def __get_user(self, user_name):
 		""" Returns the user element after the group options openned """
-		users = self.__get_group_segments()['participants'].find_elements_by_class_name('X7YrQ')  # get users
+		users = self.__get_users_in_group()  # get users
 		return [u for u in users if u.text.encode('UTF-8').decode('utf-8').startswith(user_name)][0]
 
 	def create_group(self,  first_contact, group_name):
