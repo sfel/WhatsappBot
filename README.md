@@ -11,6 +11,14 @@ The general mechanism is:
   - Clicking the link and start a chat with the number
   - Send the invitation
 
+Dependencies:
+
+  - pipenv install selenium
+	- For web automation
+  - pipenv install pywin32
+	-  For win32clipboard module, in order to copy links from group setting
+  - I used webdriver for chrome version 80 (you can install yours by googling for it)
+
 You can add phone numbers manually to the phones list in main or adding them as a new line to the a file.
 
 Dont forget to update PHONE_LIST_FILE to the file's name.

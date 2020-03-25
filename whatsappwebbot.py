@@ -1,13 +1,13 @@
 """
 Whatsup Bot
-For dependencies:
-- pipenv install selenium
-- I used webdriver for chrome version 80 (you can install yours by googling for it)
+
 For debugging use: python -i whatsappwebbot.py
 And then debug the driver by using a.driver object
 """
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from time import sleep
+from whatsappbotgroup import WhatsappBotGroup
 
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
 PHONE_LIST_FILE=r'.\phones.txt'   # Must end with newline, Assumes phone numbers are valid
@@ -34,11 +34,6 @@ class WhatsappBotMessage:
 	def __repr__(self):
 		return f'WhatsappBotMessage(addressee={repr(self.addressee)}, welcome_msg={self.welcome_msg}, invitation_link={self.invitation_link})'
 
-class WhatsappBotSettings:
-	def __init__(self, driver):
-		self.settings = dict(zip(['status', 'new_chat', 'general_menu','search', 'attach', 'conversation_menu'],driver.find_elements_by_class_name('_3j8Pd')))
-		#after self.settings['general menu'].click() ->  dict(zip(['new_group', 'profile', 'archieved','starred', 'settings', 'log_out'],driver.find_elements_by_class_name('_3cfBY')))
-
 class WhatsappWebBot:
 	""" Automation class for whatsup """
 	
@@ -61,19 +56,10 @@ class WhatsappWebBot:
 		user = self.driver.find_element_by_xpath(f'//span[@title = "{self.group_name}"]')
 		user.click()
 
-	def __send_welcome_message(self, bot_msg):
-		""" Sends the utf8 encoded welcome message """
-		send_message_js =  'var event = new InputEvent("input", {bubbles: true});'
-		send_message_js += 'var textbox = document.getElementsByClassName("_3u328")[1];'
-		send_message_js += f'textbox.textContent = "{bot_msg.welcome_msg}";'
-		send_message_js += 'textbox.dispatchEvent(event);'
-		send_message_js += 'document.querySelector("button._3M-N-").click()'
-		self.driver.execute_script(send_message_js)  # Sends the welcome message (encoded to utf-8)
-
-	def __send_link(self, link):
+	def __send_message(self, content):
 		""" Send's a message """
 		msg_box = self.driver.find_elements_by_class_name('_3u328')[1]
-		msg_box.send_keys(link)
+		msg_box.send_keys(content)
 		self.__click_send()
 
 	def __click_on_last_sent_message(self):
@@ -88,11 +74,11 @@ class WhatsappWebBot:
 	def send_whatsapp_message(self, bot_msg):
 		""" Sends a single WhatsappBotMessage """
 		self.__enter_spamming_group()
-		self.__send_link(bot_msg.addressee.chat_link)
+		self.__send_message(bot_msg.addressee.chat_link)
 		self.__click_on_last_sent_message()
 		if self.__is_valid_number():
-			self.__send_welcome_message(bot_msg)
-			self.__send_link(bot_msg.invitation_link)
+			self.__send_message(bot_msg.welcome_msg)
+			self.__send_message(bot_msg.invitation_link)
 		else:
 			self.driver.find_element_by_class_name('_2eK7W').click()
 			print(f'The message - {bot_msg.invitation_link} - contains bad number')
@@ -102,6 +88,21 @@ class WhatsappWebBot:
 		for bot_msg in bot_messages:
 			self.send_whatsapp_message(bot_msg)
 
+	def create_group(self, first_contact, group_name='ניסיון 1233'):
+		""" Creates a group and adds first_contact as admin """
+		first_contact = first_contact.encode('UTF-8').decode('UTF-8')
+		group_name = group_name.encode('UTF-8').decode('UTF-8')
+		group_manager = WhatsappBotGroup(self)
+		group_manager.create_group(first_contact=first_contact, group_name=group_name)
+		sleep(2)
+		group_manager.make_admin(first_contact)
+		sleep(2)
+		link = group_manager.get_joining_link()
+		self.__send_message(link)
+
+
+
+
 a = None
 def main():
 	global a
@@ -109,10 +110,11 @@ def main():
 		phones = [n[:-1] for n in phone_file.readlines()]  # trim \n 
 	print(phones)
 
-	phones = ['']  # Enter phones here for testing
+	phones = []  # Enter phones here for testing
 	a = WhatsappWebBot()
 	bot_messages = [WhatsappBotMessage(phone) for phone in phones]
 	a.send_whatsapp_messages(bot_messages)
+	a.create_group()
 
 if __name__ == "__main__":
 	main()
