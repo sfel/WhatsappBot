@@ -71,11 +71,15 @@ class WhatsappWebBot:
 		""" Checks for popup window with the text 'Phone number shared via url is invalid.' """
 		return len(self.driver.find_elements_by_xpath("//*[contains(text(), 'Phone number shared via url is invalid.')]")) == 0
 
+	def __open_chat(self, chat_link):
+		""" Opens a chat """
+		self.__enter_spamming_group()
+		self.__send_message(chat_link)
+		self.__click_on_last_sent_message()
+
 	def send_whatsapp_message(self, bot_msg):
 		""" Sends a single WhatsappBotMessage """
-		self.__enter_spamming_group()
-		self.__send_message(bot_msg.addressee.chat_link)
-		self.__click_on_last_sent_message()
+		self.__open_chat(bot_msg.addressee.chat_link)
 		if self.__is_valid_number():
 			self.__send_message(bot_msg.welcome_msg)
 			self.__send_message(bot_msg.invitation_link)
@@ -88,7 +92,7 @@ class WhatsappWebBot:
 		for bot_msg in bot_messages:
 			self.send_whatsapp_message(bot_msg)
 
-	def create_group(self, first_contact, group_name='ניסיון 1233'):
+	def create_group(self, first_contact='ContactName', group_name='Group Name'):
 		""" Creates a group and adds first_contact as admin """
 		first_contact = first_contact.encode('UTF-8').decode('UTF-8')
 		group_name = group_name.encode('UTF-8').decode('UTF-8')
@@ -102,7 +106,6 @@ class WhatsappWebBot:
 
 
 
-
 a = None
 def main():
 	global a
@@ -110,11 +113,15 @@ def main():
 		phones = [n[:-1] for n in phone_file.readlines()]  # trim \n 
 	print(phones)
 
+	group_name = 'Group Name'
+	group_number = 12  
+	# group_to_create = group_name + str(group_number)
+
 	phones = []  # Enter phones here for testing
 	a = WhatsappWebBot()
 	bot_messages = [WhatsappBotMessage(phone) for phone in phones]
-	a.send_whatsapp_messages(bot_messages)
-	a.create_group()
+	#a.send_whatsapp_messages(bot_messages)
+	#a.create_group()
 
 if __name__ == "__main__":
 	main()
