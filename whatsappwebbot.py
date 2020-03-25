@@ -20,10 +20,11 @@ class WhatsupWebBot:
 	welcome_msg = 'בלה בלה בלה'.encode('UTF-8').decode('UTF-8')
 
 	def __init__(self, phone_numbers):
-		self.__connect()
-		self.links_to_chats = [f'https://api.whatsapp.com/send?phone={number}&text=' for number in phone_numbers]
+		self.connect()
+		self.phone_numbers = phone_numbers
+		self.links_to_chats = [self._create_link(number) for number in phone_numbers]
 
-	def __connect(self):
+	def connect(self):
 		self.driver = webdriver.Chrome(executable_path=DRIVER_PATH)
 		self.driver.get('https://web.whatsapp.com/')
 		input('Scan QR code and then enter anything')  # The connection to whatsupweb is the only manual thing you need to do
@@ -32,6 +33,19 @@ class WhatsupWebBot:
 	  """Sends a message """
 	  send_button = self.driver.find_element_by_class_name('_3M-N-')
 	  send_button.click()
+	  
+	@staticmethod
+	def _create_link(phone_number):
+		return f'https://api.whatsapp.com/send?phone={phone_number}&text='
+
+	def open_chat(self, phone_number):
+		link = self._create_link(phone_number)
+		self.driver.get(link)
+		message_button = self.driver.find_element_by_xpath('//a[@title = "Share on WhatsApp"]')
+		message_button.click()
+		sleep(1)
+		use_web_link = self.driver.find_element_by_xpath(f'//a[text() = "use WhatsApp Web"]')
+		use_web_link.click()
 
 	def __enter_spamming_group(self):
 		""" Enters the spamming group of the bot """
@@ -80,10 +94,10 @@ def main():
 
 	print(phones)
 
-	phones = ['']  # Enter phones here for testing
 	a = WhatsupWebBot(phones)
 	#WhatsupWebBot.link_to_send = MSG_TO_SEND
-	a.run()
+	for phone_number in phones:
+		a.open_chat(phone_number)
 
 if __name__ == "__main__":
 	main()
