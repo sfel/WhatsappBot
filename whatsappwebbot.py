@@ -5,6 +5,8 @@ For debugging use: python -i whatsappwebbot.py
 And then debug the driver by using a.driver object
 """
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 from time import sleep
 from whatsappbotgroup import WhatsappBotGroup
 
@@ -75,8 +77,9 @@ class WhatsappWebBot:
     def __connect(self):
         self.driver = webdriver.Chrome(executable_path=DRIVER_PATH)
         self.driver.get('https://web.whatsapp.com/')
-        input(
-            'Scan QR code and then enter anything')  # The connection to whatsupweb is the only manual thing you need to do
+        wait = WebDriverWait(self.driver, 10)
+        wait.until(lambda driver: driver.find_element_by_class_name('ZP8RM')) # wait until the contact search element
+        #input('Scan QR code and then enter anything')  # The connection to whatsupweb is the only manual thing you need to do
 
     def __click_send(self):
         """Sends a message """
@@ -102,6 +105,8 @@ class WhatsappWebBot:
         sleep(1)
         use_web_link = self.driver.find_element_by_xpath(f'//a[text() = "use WhatsApp Web"]')
         use_web_link.click()
+        wait = WebDriverWait(self.driver, 10)
+        wait.until(lambda driver: driver.find_element_by_class_name('_3fs0K'))
 
 
 a = None
@@ -117,11 +122,11 @@ def main():
     group_number = 12
     # group_to_create = group_name + str(group_number)
 
-    phones = ['PhoneNumber']  # Enter phones here for testing
+    #phones = []  # Enter phones here for testing
     a = WhatsappWebBot()
     bot_messages = [WhatsappBotMessage(phone) for phone in phones]
     # a.send_whatsapp_messages(bot_messages)
-    a.create_group()
+    #a.create_group()
 
 
 if __name__ == "__main__":
