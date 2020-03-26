@@ -4,10 +4,11 @@ Whatsup Bot
 For debugging use: python -i whatsappwebbot.py
 And then debug the driver by using a.driver object
 """
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from time import sleep
+
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+
 from whatsappbotgroup import WhatsappBotGroup
 
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
