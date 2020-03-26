@@ -8,8 +8,8 @@ __pycache__/*
 # Ignore Jetbrains files
 .idea/*
 
-# Ignore debug stuff
-debug*.log
-
 # Ignore local phones.txt
 phones*.txt
+
+# Ignore local main.py
+main*.py

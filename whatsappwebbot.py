@@ -50,7 +50,7 @@ class WhatsappWebBot:
 
     def send_whatsapp_message(self, bot_msg):
         """ Sends a single WhatsappBotMessage """
-        try: 
+        try:
             self.__open_chat(bot_msg.addressee.chat_link)
             self.__send_message(bot_msg.welcome_msg)
             self.__send_message(bot_msg.invitation_link)
@@ -65,7 +65,7 @@ class WhatsappWebBot:
         for bot_msg in bot_messages:
             self.send_whatsapp_message(bot_msg)
 
-    def create_group(self, first_contact='', group_name='Group Name'):
+    def create_group(self, first_contact, group_name):
         """ Creates a group, adds first_contact as admin and returns a link to join the group """
         first_contact = first_contact.encode('UTF-8').decode('UTF-8')
         group_name = group_name.encode('UTF-8').decode('UTF-8')
@@ -103,41 +103,14 @@ class WhatsappWebBot:
     def __open_chat(self, chat_link):
         """ Opens a chat with unsaved number"""
         self.driver.get(chat_link)
-        if self.__is_invalid_link(): 
+        if self.__is_invalid_link():
             self.driver.execute_script("window.history.go(-1)")
             return
-        
+
         message_button = self.driver.find_element_by_xpath('//a[@title = "Share on WhatsApp"]')
         message_button.click()
         sleep(1)
         use_web_link = self.driver.find_element_by_xpath(f'//a[text() = "use WhatsApp Web"]')
         use_web_link.click()
         wait = WebDriverWait(self.driver, timeout=15)
-        wait.until(lambda driver: driver.find_element_by_class_name('_3fs0K')) 
-
-
-
-
-
-a = None
-
-
-def main():
-    global a
-    with open(PHONE_LIST_FILE) as phone_file:
-        phones = [n.strip() for n in phone_file.readlines()]  # trim \n
-    print(phones)
-
-    group_name = 'Group Name'
-    group_number = 12
-    # group_to_create = group_name + str(group_number)
-
-    #phones = []  # Enter phones here for testing
-    a = WhatsappWebBot()
-    bot_messages = [WhatsappBotMessage(phone) for phone in phones]
-    # a.send_whatsapp_messages(bot_messages)
-    #a.create_group()
-
-
-if __name__ == "__main__":
-    main()
+        wait.until(lambda driver: driver.find_element_by_class_name('_3fs0K'))
