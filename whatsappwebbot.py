@@ -107,27 +107,3 @@ class WhatsappWebBot:
         use_web_link.click()
         wait = WebDriverWait(self.driver, 10)
         wait.until(lambda driver: driver.find_element_by_class_name('_3fs0K'))
-
-
-a = None
-
-
-def main():
-    global a
-    with open(PHONE_LIST_FILE) as phone_file:
-        phones = [n.strip() for n in phone_file.readlines()]  # trim \n
-    print(phones)
-
-    group_name = 'Group Name'
-    group_number = 12
-    # group_to_create = group_name + str(group_number)
-
-    #phones = []  # Enter phones here for testing
-    a = WhatsappWebBot()
-    bot_messages = [WhatsappBotMessage(phone) for phone in phones]
-    # a.send_whatsapp_messages(bot_messages)
-    #a.create_group()
-
-
-if __name__ == "__main__":
-    main()
