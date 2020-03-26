@@ -1,6 +1,7 @@
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 
+
 class WhatsappBotSettingsBase:
     def __init__(self, bot):
         self.bot = bot
@@ -13,7 +14,7 @@ class WhatsappBotSettingsBase:
 class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
     def settings(self):
         settings = dict(zip(['status', 'new_chat', 'general_menu', 'search', 'attach', 'conversation_menu'],
-                            self.bot.driver.find_elements_by_class_name('_3j8Pd')))
+                            self.bot.driver.find_elements_by_xpath('//header//div[@role="button"]/parent::div')))
         self.settings = dict((k, settings[k]) for k in ('status', 'new_chat', 'general_menu'))
         self.settings['menu'] = self.settings.pop('general_menu')
 
@@ -29,11 +30,15 @@ class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
 
     def close_search(self):
         """ Closes the search box """
-        webdriver.ActionChains(self.bot.driver).send_keys(Keys.ESCAPE).perform()  #  press escape
+        webdriver.ActionChains(self.bot.driver).send_keys(Keys.ESCAPE).perform()  # press escape
 
     def click_on_first_result(self):
         """ Clicks on the first conversation """
         self.bot.driver.find_element_by_class_name('_3vpWv').click()  # for more options use find_elements... method
+
+    def _get_groups_menu(self):
+        """ Returns the groups menu html node """
+        return self.driver.find_element_by_xpath('//div[@role="button" and @title="Menu"]/parent::div')[1]
 
 
 class WhatsappBotConversationSettings(WhatsappBotSettingsBase):
