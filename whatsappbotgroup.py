@@ -1,6 +1,7 @@
 from whatsappbotsetting import WhatsappBotGeneralSettings
 import win32clipboard
 from selenium.webdriver import ActionChains
+from selenium.common import exceptions
 from time import sleep
 
 
@@ -53,8 +54,36 @@ class WhatsappBotGroup:
         sleep(1)
         return link
 
+    def enter_group_if_exists(self, group_name):
+        """ Returns wether group_name exists , if it does it enters """
+        settings = WhatsappBotGeneralSettings(self.bot)
+        # Enter group name
+        settings.write_in_search(group_name)
+        sleep(2)
+        try:
+            settings.click_on_first_result()
+        except exceptions.NoSuchElementException:
+            settings.close_search()
+            return False
+        settings.close_search()
+        # Check if it is the real name
+        return self.__get_conversation_title_elemnet().text.startswith(group_name)
+
+    def get_group_size(self):
+        self.__open_group_settings()
+        sleep(1) 
+        size = len(self.__get_users_in_group())
+        sleep(1)
+        self.__close_group_settings()  # the entire group settings
+        sleep(1)
+        return size
+
+
+    def __get_conversation_title_elemnet(self):
+        return self.bot.driver.find_element_by_class_name('_3V5x5')
+
     def __open_group_settings(self):
-        self.bot.driver.find_element_by_class_name('_3V5x5').click()
+        self.__get_conversation_title_elemnet().click()
 
     def __close_group_settings(self):
         self.bot.driver.find_element_by_class_name('qfKkX').click()

@@ -13,9 +13,6 @@ from time import sleep
 from whatsappbotgroup import WhatsappBotGroup
 
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
-PHONE_LIST_FILE = r'.\phones.txt'  # Must end with newline, Assumes phone numbers are valid
-MSG_TO_SEND = 'בלה בלה בלה'
-
 
 class WhatsappBotUser:
     def __init__(self, phone_number, country_prefix='972'):
@@ -30,7 +27,7 @@ class WhatsappBotUser:
 
 
 class WhatsappBotMessage:
-    def __init__(self, addressee_phone, welcome_msg=MSG_TO_SEND, invitation_link='TESTING123 www.google.com'):
+    def __init__(self, addressee_phone, welcome_msg, invitation_link):
         self.addressee = WhatsappBotUser(addressee_phone)
         self.welcome_msg = welcome_msg.encode('UTF-8').decode('UTF-8')
         self.invitation_link = invitation_link
@@ -55,10 +52,10 @@ class WhatsappWebBot:
             self.__send_message(bot_msg.welcome_msg)
             self.__send_message(bot_msg.invitation_link)
         except exceptions.TimeoutException:
-            if len(a.driver.find_elements_by_class_name('_2Vo52')):
+            if len(self.driver.find_elements_by_class_name('_2Vo52')):
                 print(f'The message - {bot_msg.invitation_link} - contains bad number')
             else:
-                print("Timed out waiting for page to load")
+                print(f"Timed out waiting for page to load - {bot_msg}")
 
     def send_whatsapp_messages(self, bot_messages):
         """ Sends a collection of WhatsappBotMessage """
@@ -83,7 +80,7 @@ class WhatsappWebBot:
         self.driver = webdriver.Chrome(executable_path=DRIVER_PATH)
         self.driver.get('https://web.whatsapp.com/')
         wait = WebDriverWait(self.driver, timeout=60)
-        wait.until(lambda driver: driver.find_element_by_class_name('ZP8RM')) # wait until the contact search element
+        wait.until(lambda driver: driver.find_element_by_class_name('eiCXe')) # wait until the contact search element
 
     def __click_send(self):
         """Sends a message """
@@ -98,19 +95,20 @@ class WhatsappWebBot:
 
     def __is_invalid_link(self):
         """ Returns if a chat link what incorrect """
-        return 'This link is incorrect. Close this window and try a different link.' in [e.text for e in a.driver.find_elements_by_class_name('_2yzk')]
+        return 'This link is incorrect. Close this window and try a different link.' in [e.text for e in self.driver.find_elements_by_class_name('_2yzk')]
 
     def __open_chat(self, chat_link):
         """ Opens a chat with unsaved number"""
         self.driver.get(chat_link)
         if self.__is_invalid_link():
             self.driver.execute_script("window.history.go(-1)")
-            return
+        else:
+            message_button = self.driver.find_element_by_xpath('//a[@title = "Share on WhatsApp"]')
+            message_button.click()
+            sleep(1)
+            use_web_link = self.driver.find_element_by_xpath(f'//a[text() = "use WhatsApp Web"]')
+            use_web_link.click()
 
-        message_button = self.driver.find_element_by_xpath('//a[@title = "Share on WhatsApp"]')
-        message_button.click()
-        sleep(1)
-        use_web_link = self.driver.find_element_by_xpath(f'//a[text() = "use WhatsApp Web"]')
-        use_web_link.click()
-        wait = WebDriverWait(self.driver, timeout=15)
+        wait = WebDriverWait(self.driver, timeout=25)
         wait.until(lambda driver: driver.find_element_by_class_name('_3fs0K'))
+
