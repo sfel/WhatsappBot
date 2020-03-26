@@ -43,12 +43,14 @@ class WhatsappBotGroup:
         sleep(1)
         {e.text: e for e in self.bot.driver.find_element_by_class_name('rK2ei').find_elements_by_class_name('_26JG5')}[
             'Copy link'].click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
-        sleep(3)
+        sleep(2)
         win32clipboard.OpenClipboard()
         link = win32clipboard.GetClipboardData()
         win32clipboard.CloseClipboard()
         self.__close_group_settings()  # the copying link settings
+        sleep(1)
         self.__close_group_settings()  # the entire group settings
+        sleep(1)
         return link
 
     def __open_group_settings(self):
