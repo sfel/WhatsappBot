@@ -1,0 +1,15 @@
+# Ignore logs
+*.log
+
+# Ignore python cache and binaries
+__pycache__/*
+*.py[doc]
+
+# Ignore Jetbrains files
+.idea/*
+
+# Ignore debug stuff
+debug*.log
+
+# Ignore local phones.txt
+phones*.txt
