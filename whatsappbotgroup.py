@@ -1,4 +1,4 @@
-from whatsappbotsetting import WhatsappBotGeneralSettings
+from whatsappbotsetting import WhatsappBotGeneralSettings, WhatsappBotConversationSettings
 import win32clipboard
 from selenium.webdriver import ActionChains
 from selenium.common import exceptions
@@ -9,17 +9,19 @@ class WhatsappBotGroup:
     def __init__(self, bot):
         self.bot = bot
 
-    def click_next(self):
-        self.bot.driver.find_element_by_class_name('_1g8sv').click()
+    def __write_text_on_cursor(self, text):
+        actions = ActionChains(self.bot.driver)
+        actions.send_keys(text)
+        actions.perform()
 
     def create_group(self, first_contact, group_name):
         """ Creates a new group with the bot and a single contact """
-        WhatsappBotGeneralSettings(self.bot).sub_menue()['new_group'].click()
-        self.bot.driver.find_element_by_class_name('_44uDJ').send_keys(first_contact)  # write name
-        self.bot.driver.find_element_by_class_name('_2UaNq').click()  # choose user
-        self.click_next()  # click next
-        self.bot.driver.find_element_by_class_name('_7w-84').send_keys(group_name)  # insert group name
-        self.click_next()  # click finish
+        WhatsappBotGeneralSettings(self.bot).sub_menue('New group').click()
+        self.__write_text_on_cursor(first_contact)  # look for user
+        bot.driver.find_elements_by_xpath(f"//*[contains(text(), '{first_contact}')]")[1].click()  # choose user
+        bot.driver.find_element_by_xpath("//*[span[@data-icon='forward-light']]")  # click next
+        self.__write_text_on_cursor(group_name)  # insert group name
+        bot.driver.find_element_by_xpath("//*[span[@data-icon='checkmark-light']]")  # click finish
 
     def make_admin(self, user_name):
         """ Makes user_name a group admin - within that group context  """
@@ -78,15 +80,11 @@ class WhatsappBotGroup:
         sleep(1)
         return size
 
-
-    def __get_conversation_title_elemnet(self):
-        return self.bot.driver.find_element_by_class_name('_3V5x5')
-
     def __open_group_settings(self):
-        self.__get_conversation_title_elemnet().click()
+        WhatsappBotConversationSettings(self.bot).settings['search'].find_element_by_xpath("../../../preceding-sibling::div").click()
 
     def __close_group_settings(self):
-        self.bot.driver.find_element_by_class_name('qfKkX').click()
+        WhatsappBotSettingsBase(self.bot).press_escape()
 
     def __get_group_segments(self):
         """ Returns the segments of an oppened group settings """

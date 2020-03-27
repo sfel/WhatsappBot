@@ -52,6 +52,7 @@ class WhatsappWebBot:
             self.__send_message(bot_msg.welcome_msg)
             self.__send_message(bot_msg.invitation_link)
         except exceptions.TimeoutException:
+         # else:
             if len(self.driver.find_elements_by_class_name('_2Vo52')):
                 print(f'The message - {bot_msg.invitation_link} - contains bad number')
             else:
@@ -80,16 +81,16 @@ class WhatsappWebBot:
         self.driver = webdriver.Chrome(executable_path=DRIVER_PATH)
         self.driver.get('https://web.whatsapp.com/')
         wait = WebDriverWait(self.driver, timeout=60)
-        wait.until(lambda driver: driver.find_element_by_class_name('eiCXe')) # wait until the contact search element
+        wait.until(lambda driver: driver.find_element_by_xpath("//*[contains(text(), 'Search or start new chat')]")) # wait until the contact search element
 
     def __click_send(self):
         """Sends a message """
-        send_button = self.driver.find_element_by_class_name('_3M-N-')
+        send_button = self.driver.find_element_by_xpath("//*[span[@data-icon='send']]")
         send_button.click()
 
     def __send_message(self, content):
         """ Send's a message """
-        msg_box = self.driver.find_elements_by_class_name('_3u328')[1]
+        msg_box = self.driver.find_element_by_xpath("//*[contains(text(), 'Type a message')]").find_element_by_xpath('../..')
         msg_box.send_keys(content)
         self.__click_send()
 
@@ -102,13 +103,16 @@ class WhatsappWebBot:
         self.driver.get(chat_link)
         if self.__is_invalid_link():
             self.driver.execute_script("window.history.go(-1)")
+            # sleep(10)
+            # return False
         else:
             message_button = self.driver.find_element_by_xpath('//a[@title = "Share on WhatsApp"]')
             message_button.click()
             sleep(1)
             use_web_link = self.driver.find_element_by_xpath(f'//a[text() = "use WhatsApp Web"]')
             use_web_link.click()
-
+            # sleep(20)
+            # return True
         wait = WebDriverWait(self.driver, timeout=25)
-        wait.until(lambda driver: driver.find_element_by_class_name('_3fs0K'))
+        wait.until(lambda driver: driver.find_element_by_class_name('_2y17h'))
 
