@@ -1,6 +1,8 @@
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 
+GROUP_SETTINGS_XPATH = '//header//div[@role="button"]/parent::div'
+
 
 class WhatsappBotSettingsBase:
     def __init__(self, bot):
@@ -14,7 +16,7 @@ class WhatsappBotSettingsBase:
 class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
     def settings(self):
         settings = dict(zip(['status', 'new_chat', 'general_menu', 'search', 'attach', 'conversation_menu'],
-                            self.bot.driver.find_elements_by_xpath('//header//div[@role="button"]/parent::div')))
+                            self.bot.driver.find_elements_by_xpath(GROUP_SETTINGS_XPATH)))
         self.settings = dict((k, settings[k]) for k in ('status', 'new_chat', 'general_menu'))
         self.settings['menu'] = self.settings.pop('general_menu')
 
@@ -22,11 +24,12 @@ class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
         """ Returns dictionary of sub menue - This function must be called after settings is called """
         self.settings['menu'].click()
         return dict(zip(['new_group', 'profile', 'archieved', 'starred', 'settings', 'log_out'],
-                        self.bot.driver.find_elements_by_class_name('_3cfBY')))
+                        self.bot.driver.find_elements_by_xpath('//ul/li[@data-animate-dropdown-item = "true"]')))
 
     def write_in_search(self, query):
         """ Types query to the general search box """
-        chat_search_bar = self.bot.driver.find_elements_by_xpath('//div[text() = "Search or start new chat"]/following-sibling::label/child::div')[0]
+        chat_search_bar = self.bot.driver.find_elements_by_xpath(
+            '//div[text() = "Search or start new chat"]/following-sibling::label/child::div')[0]
         chat_search_bar.send_keys(query)
 
     def close_search(self):
@@ -45,7 +48,7 @@ class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
 class WhatsappBotConversationSettings(WhatsappBotSettingsBase):
     def settings(self):
         settings = dict(zip(['status', 'new_chat', 'general_menu', 'search', 'attach', 'conversation_menu'],
-                            self.bot.driver.find_elements_by_class_name('_3j8Pd')))
+                            GROUP_SETTINGS_XPATH))
         self.settings = dict((k, settings[k]) for k in ('search', 'attach', 'conversation_menu'))
         self.settings['menu'] = self.settings.pop('conversation_menu')
 
