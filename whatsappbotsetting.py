@@ -24,9 +24,10 @@ class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
         return dict(zip(['new_group', 'profile', 'archieved', 'starred', 'settings', 'log_out'],
                         self.bot.driver.find_elements_by_class_name('_3cfBY')))
 
-    def write_in_search(self, quary):
-        """ Types quary to the general search box """
-        self.bot.driver.find_element_by_class_name('eiCXe').find_element_by_class_name('_3u328').send_keys(quary)
+    def write_in_search(self, query):
+        """ Types query to the general search box """
+        chat_search_bar = self.bot.driver.find_elements_by_xpath('//div[text() = "Search or start new chat"]/following-sibling::label/child::div')[0]
+        chat_search_bar.send_keys(query)
 
     def close_search(self):
         """ Closes the search box """
