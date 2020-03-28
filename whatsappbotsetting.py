@@ -12,6 +12,15 @@ class WhatsappBotSettingsBase:
     def settings(self):
         pass
 
+    def sub_menue(self, choice):
+        """ Returns th chosen element from the sub menue - This function must be called after settings is called
+            choice is in ['New group', 'Profile', 'Archived', 'Starred', 'Settings', 'Log out'] """
+        self.settings['menu'].click()
+        return self.bot.driver.find_element_by_xpath(f'//*[contains(text(), "{choice}")]')
+
+    def press_escape(self):
+        webdriver.ActionChains(self.bot.driver).send_keys(Keys.ESCAPE).perform()
+
 
 class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
     def settings(self):
@@ -19,12 +28,6 @@ class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
                             self.bot.driver.find_elements_by_xpath(GROUP_SETTINGS_XPATH)))
         self.settings = dict((k, settings[k]) for k in ('status', 'new_chat', 'general_menu'))
         self.settings['menu'] = self.settings.pop('general_menu')
-
-    def sub_menue(self):
-        """ Returns dictionary of sub menue - This function must be called after settings is called """
-        self.settings['menu'].click()
-        return dict(zip(['new_group', 'profile', 'archieved', 'starred', 'settings', 'log_out'],
-                        self.bot.driver.find_elements_by_xpath('//ul/li[@data-animate-dropdown-item = "true"]')))
 
     def write_in_search(self, query):
         """ Types query to the general search box """
@@ -51,9 +54,3 @@ class WhatsappBotConversationSettings(WhatsappBotSettingsBase):
                             GROUP_SETTINGS_XPATH))
         self.settings = dict((k, settings[k]) for k in ('search', 'attach', 'conversation_menu'))
         self.settings['menu'] = self.settings.pop('conversation_menu')
-
-    def sub_menue(self):
-        """ Returns dictionary of sub menue - This function must be called after settings is called """
-        self.settings['menu'].click()
-        return dict(zip(['new_group', 'profile', 'archieved', 'starred', 'settings', 'log_out'],
-                        self.bot.driver.find_elements_by_class_name('_3cfBY')))

@@ -1,4 +1,4 @@
-from whatsappbotsetting import WhatsappBotGeneralSettings
+from whatsappbotsetting import WhatsappBotGeneralSettings, WhatsappBotSettingsBase
 import win32clipboard
 from selenium.webdriver import ActionChains
 from selenium.common import exceptions
@@ -17,13 +17,12 @@ class WhatsappBotGroup:
 
     def create_group(self, first_contact, group_name):
         """ Creates a new group with the bot and a single contact """
-        WhatsappBotGeneralSettings(self.bot).sub_menue()['new_group'].click()
-        self.bot.driver.find_element_by_xpath('//input[@placeholder = "Type contact name"]').send_keys(
-            first_contact)  # write name
-        self.bot.driver.find_element_by_class_name('_2wP_Y').click()  # choose user
+        WhatsappBotGeneralSettings(self.bot).sub_menue('New group').click()
+        self.__write_text_on_cursor(first_contact)  # look for user
+        self.bot.driver.find_elements_by_xpath(f"//*[contains(text(), '{first_contact}')]")[1].click()  # choose user
         self.click_next()  # click next
-        self.bot.driver.find_element_by_class_name('_3F6QL ').send_keys(group_name)  # insert group name
-        self.click_finish()  # click finish
+        self.__write_text_on_cursor(group_name)  # insert group name
+        self.click_finish()
 
     def make_admin(self, user_name):
         """ Makes user_name a group admin - within that group context  """
@@ -33,9 +32,11 @@ class WhatsappBotGroup:
         actions = ActionChains(self.bot.driver)
         actions.context_click(user).perform()  # right click
         sleep(1)
-        self.bot.driver.find_element_by_xpath('//div[@role = "button" and @title = "Make group admin"]').click()  # choose
+        self.bot.driver.find_element_by_xpath(
+            '//div[@role = "button" and @title = "Make group admin"]').click()  # choose
         sleep(1)
-        self.bot.driver.find_element_by_xpath('//div[@role = "button" and text() = "Make group admin"]').click()  # accept
+        self.bot.driver.find_element_by_xpath(
+            '//div[@role = "button" and text() = "Make group admin"]').click()  # accept
         sleep(1)
         self.__close_group_settings()
         sleep(1)
@@ -82,6 +83,11 @@ class WhatsappBotGroup:
         sleep(1)
         return size
 
+    def __write_text_on_cursor(self, text):
+        actions = ActionChains(self.bot.driver)
+        actions.send_keys(text)
+        actions.perform()
+
     def __get_conversation_title_element(self):
         return self.bot.driver.find_element_by_xpath('//div[@id = "main"]/child::header')
 
@@ -89,7 +95,7 @@ class WhatsappBotGroup:
         self.__get_conversation_title_element().click()
 
     def __close_group_settings(self):
-        self.bot.driver.find_element_by_class_name('qfKkX').click()
+        WhatsappBotSettingsBase(self.bot).press_escape()
 
     def __get_group_segments(self):
         """ Returns the segments of an open group settings """
@@ -97,13 +103,13 @@ class WhatsappBotGroup:
                         self.bot.driver.find_elements_by_class_name('_1CRb5')))
 
     def __invite_to_group_via_link_element(self):
-        """ Returns the element of the opeened group menue for inviting via link """
-        return {e.text: e for e in self.__get_group_segments()['participants'].find_elements_by_class_name('_2UaNq')}[
-            'Invite to group via link']
+        """ Returns the element of the opened group menue for inviting via link """
+        return self.__get_group_segments()['participants'].find_element_by_xpath(
+            '//*[text() = "Invite to group via link"]')
 
     def __get_users_in_group(self):
         """ Returns the users from an oppened group settings """
-        return self.__get_group_segments()['participants'].find_elements_by_class_name('_2wP_Y')
+        return self.__get_group_segments()['participants'].find_elements_by_class_name('_3FXB1')
 
     def __get_user(self, user_name):
         """ Returns the user element after the group options openned """
