@@ -1,5 +1,5 @@
 """
-Whatsup Bot
+WhatsApp Bot
 
 For debugging use: python -i whatsappwebbot.py
 And then debug the driver by using a.driver object
@@ -13,6 +13,7 @@ from time import sleep
 from whatsappbotgroup import WhatsappBotGroup
 
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
+
 
 class WhatsappBotUser:
     def __init__(self, phone_number, country_prefix='972'):
@@ -33,16 +34,20 @@ class WhatsappBotMessage:
         self.invitation_link = invitation_link
 
     def __str__(self):
-        return f'WhatsappBotMessage(addressee={str(self.addressee)}, welcome_msg={self.welcome_msg}, invitation_link={self.invitation_link})'
+        return f'WhatsappBotMessage(addressee={str(self.addressee)}, welcome_msg={self.welcome_msg}, ' \
+               f'invitation_link={self.invitation_link})'
 
     def __repr__(self):
-        return f'WhatsappBotMessage(addressee={repr(self.addressee)}, welcome_msg={self.welcome_msg}, invitation_link={self.invitation_link})'
+        return f'WhatsappBotMessage(addressee={repr(self.addressee)}, welcome_msg={self.welcome_msg}, ' \
+               f'invitation_link={self.invitation_link})'
+
 
 class BadLinkException(Exception):
     pass
 
+
 class WhatsappWebBot:
-    """ Automation class for whatsup """
+    """ Automation class for WhatsApp"""
 
     def __init__(self):
         self.__connect()
@@ -81,7 +86,8 @@ class WhatsappWebBot:
         self.driver = webdriver.Chrome(executable_path=DRIVER_PATH)
         self.driver.get('https://web.whatsapp.com/')
         wait = WebDriverWait(self.driver, timeout=60)
-        wait.until(lambda driver: driver.find_element_by_xpath("//*[contains(text(), 'Search or start new chat')]")) # wait until the contact search element
+        wait.until(lambda driver: driver.find_element_by_xpath(
+            "//*[contains(text(), 'Search or start new chat')]"))  # wait until the contact search element
 
     def __click_send(self):
         """Sends a message """
@@ -89,14 +95,16 @@ class WhatsappWebBot:
         send_button.click()
 
     def __send_message(self, content):
-        """ Send's a message """
-        msg_box = self.driver.find_element_by_xpath("//*[contains(text(), 'Type a message')]").find_element_by_xpath('../..')
+        """ Sends a message """
+        msg_box = self.driver.find_element_by_xpath("//*[contains(text(), 'Type a message')]").find_element_by_xpath(
+            '../..')
         msg_box.send_keys(content)
         self.__click_send()
 
     def __is_invalid_link(self):
         """ Returns if a chat link what incorrect """
-        return len(self.driver.find_elements_by_xpath("//*[contains(text(), 'This link is incorrect. Close this window and try a different link.')]")) > 0
+        return len(self.driver.find_elements_by_xpath(
+            "//*[contains(text(), 'This link is incorrect. Close this window and try a different link.')]")) > 0
 
     def __open_chat(self, chat_link):
         """ Opens a chat with unsaved number"""
@@ -113,4 +121,3 @@ class WhatsappWebBot:
 
         wait = WebDriverWait(self.driver, timeout=25)
         wait.until(lambda driver: driver.find_element_by_xpath("//*[contains(text(), 'Type a message')]"))
-

@@ -50,7 +50,8 @@ class WhatsappBotGroup:
         sleep(1)
         self.__invite_to_group_via_link_element().click()
         sleep(1)
-        self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Copy link')]").click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
+        self.bot.driver.find_element_by_xpath(
+            "//*[contains(text(), 'Copy link')]").click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
         sleep(2)
         win32clipboard.OpenClipboard()
         link = win32clipboard.GetClipboardData()
@@ -62,7 +63,7 @@ class WhatsappBotGroup:
         return link
 
     def enter_group_if_exists(self, group_name):
-        """ Returns wether group_name exists , if it does it enters """
+        """ Returns whether group_name exists , if it does it enters """
         settings = WhatsappBotGeneralSettings(self.bot)
         # Enter group name
         settings.write_in_search(group_name)
@@ -79,7 +80,7 @@ class WhatsappBotGroup:
 
     def get_group_size(self):
         self.__open_group_settings()
-        sleep(1) 
+        sleep(1)
         try:
             size = int(self.__get_group_info_segment('participants').text.split()[0])
         except exceptions.NoSuchElementException:
@@ -95,15 +96,16 @@ class WhatsappBotGroup:
     def __close_group_settings(self):
         WhatsappBotSettingsBase(self.bot).press_escape()
 
-    def __get_group_info_segment(self, quary):
-        """ Returns the segments of an oppened group settings """
-        group_info = self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Group info')]/../../following-sibling::div")
-        return group_info.find_element_by_xpath(f"//*[contains(text(), '{quary}')]")
+    def __get_group_info_segment(self, query):
+        """ Returns the segments of an open group settings """
+        group_info = self.bot.driver.find_element_by_xpath(
+            "//*[contains(text(), 'Group info')]/../../following-sibling::div")
+        return group_info.find_element_by_xpath(f"//*[contains(text(), '{query}')]")
 
     def __invite_to_group_via_link_element(self):
-        """ Returns the element of the opeened group menue for inviting via link """
+        """ Returns the element of the open group menue for inviting via link """
         return self.__get_group_info_segment('Invite to group via link')
 
     def __get_user(self, user_name):
-        """ Returns the user element after the group options openned """
+        """ Returns the user element after the group options open """
         return self.__get_group_info_segment(user_name)  # get users
