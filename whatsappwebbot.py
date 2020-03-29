@@ -38,6 +38,8 @@ class WhatsappBotMessage:
     def __repr__(self):
         return f'WhatsappBotMessage(addressee={repr(self.addressee)}, welcome_msg={self.welcome_msg}, invitation_link={self.invitation_link})'
 
+class BadLinkException(Exception):
+    pass
 
 class WhatsappWebBot:
     """ Automation class for whatsup """
@@ -52,11 +54,9 @@ class WhatsappWebBot:
             self.__send_message(bot_msg.welcome_msg)
             self.__send_message(bot_msg.invitation_link)
         except exceptions.TimeoutException:
-         # else:
-            if len(self.driver.find_elements_by_class_name('_2Vo52')):
-                print(f'The message - {bot_msg.invitation_link} - contains bad number')
-            else:
-                print(f"Timed out waiting for page to load - {bot_msg}")
+            print(f"Timed out waiting for page to load - {bot_msg}")
+        except BadLinkException:
+            print(f'Bad link for {bot_msg}')
 
     def send_whatsapp_messages(self, bot_messages):
         """ Sends a collection of WhatsappBotMessage """
@@ -96,23 +96,21 @@ class WhatsappWebBot:
 
     def __is_invalid_link(self):
         """ Returns if a chat link what incorrect """
-        return 'This link is incorrect. Close this window and try a different link.' in [e.text for e in self.driver.find_elements_by_class_name('_2yzk')]
+        return len(self.driver.find_elements_by_xpath("//*[contains(text(), 'This link is incorrect. Close this window and try a different link.')]")) > 0
 
     def __open_chat(self, chat_link):
         """ Opens a chat with unsaved number"""
         self.driver.get(chat_link)
         if self.__is_invalid_link():
             self.driver.execute_script("window.history.go(-1)")
-            # sleep(10)
-            # return False
+            raise BadLinkException()
         else:
             message_button = self.driver.find_element_by_xpath('//a[@title = "Share on WhatsApp"]')
             message_button.click()
             sleep(1)
             use_web_link = self.driver.find_element_by_xpath(f'//a[text() = "use WhatsApp Web"]')
             use_web_link.click()
-            # sleep(20)
-            # return True
+
         wait = WebDriverWait(self.driver, timeout=25)
-        wait.until(lambda driver: driver.find_element_by_class_name('_2y17h'))
+        wait.until(lambda driver: driver.find_element_by_xpath("//*[contains(text(), 'Type a message')]"))
 

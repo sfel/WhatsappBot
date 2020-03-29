@@ -1,4 +1,4 @@
-from whatsappbotsetting import WhatsappBotGeneralSettings, WhatsappBotConversationSettings
+from whatsappbotsetting import WhatsappBotGeneralSettings, WhatsappBotConversationSettings, WhatsappBotSettingsBase
 import win32clipboard
 from selenium.webdriver import ActionChains
 from selenium.common import exceptions
@@ -17,11 +17,17 @@ class WhatsappBotGroup:
     def create_group(self, first_contact, group_name):
         """ Creates a new group with the bot and a single contact """
         WhatsappBotGeneralSettings(self.bot).sub_menue('New group').click()
+        sleep(1)
         self.__write_text_on_cursor(first_contact)  # look for user
-        bot.driver.find_elements_by_xpath(f"//*[contains(text(), '{first_contact}')]")[1].click()  # choose user
-        bot.driver.find_element_by_xpath("//*[span[@data-icon='forward-light']]")  # click next
+        sleep(1)
+        self.bot.driver.find_elements_by_xpath(f"//*[contains(text(), '{first_contact}')]")[1].click()  # choose user
+        sleep(1)
+        self.bot.driver.find_element_by_xpath("//*[span[@data-icon='forward-light']]").click()  # click next
+        sleep(1)
         self.__write_text_on_cursor(group_name)  # insert group name
-        bot.driver.find_element_by_xpath("//*[span[@data-icon='checkmark-light']]")  # click finish
+        sleep(1)
+        self.bot.driver.find_element_by_xpath("//*[span[@data-icon='checkmark-light']]").click()  # click finish
+        sleep(1)
 
     def make_admin(self, user_name):
         """ Makes user_name a group admin - within that group context  """
@@ -31,9 +37,9 @@ class WhatsappBotGroup:
         actions = ActionChains(self.bot.driver)
         actions.context_click(user).perform()  # right click
         sleep(1)
-        {e.text: e for e in self.bot.driver.find_elements_by_class_name('_3cfBY')}['Make group admin'].click()  # choose
+        self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Make group admin')]").click()  # choose
         sleep(1)
-        {e.text: e for e in self.bot.driver.find_elements_by_class_name('_2eK7W')}['MAKE GROUP ADMIN'].click()  # accept
+        self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Make group admin')]").click()  # accept
         sleep(1)
         self.__close_group_settings()
         sleep(1)
@@ -44,8 +50,7 @@ class WhatsappBotGroup:
         sleep(1)
         self.__invite_to_group_via_link_element().click()
         sleep(1)
-        {e.text: e for e in self.bot.driver.find_element_by_class_name('rK2ei').find_elements_by_class_name('_26JG5')}[
-            'Copy link'].click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
+        self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Copy link')]").click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
         sleep(2)
         win32clipboard.OpenClipboard()
         link = win32clipboard.GetClipboardData()
@@ -68,39 +73,37 @@ class WhatsappBotGroup:
             settings.close_search()
             return False
         settings.close_search()
+        sleep(1)
         # Check if it is the real name
-        return self.__get_conversation_title_elemnet().text.startswith(group_name)
+        return WhatsappBotConversationSettings(self.bot).settings['title'].text.startswith(group_name)
 
     def get_group_size(self):
         self.__open_group_settings()
         sleep(1) 
-        size = len(self.__get_users_in_group())
+        try:
+            size = int(self.__get_group_info_segment('participants').text.split()[0])
+        except exceptions.NoSuchElementException:
+            size = 1
         sleep(1)
         self.__close_group_settings()  # the entire group settings
         sleep(1)
         return size
 
     def __open_group_settings(self):
-        WhatsappBotConversationSettings(self.bot).settings['search'].find_element_by_xpath("../../../preceding-sibling::div").click()
+        WhatsappBotConversationSettings(self.bot).settings['title'].click()
 
     def __close_group_settings(self):
         WhatsappBotSettingsBase(self.bot).press_escape()
 
-    def __get_group_segments(self):
+    def __get_group_info_segment(self, quary):
         """ Returns the segments of an oppened group settings """
-        return dict(zip(['header', 'description', 'shared_media', 'options', 'participants', 'exit', 'report'],
-                        self.bot.driver.find_elements_by_class_name('_2LSbZ')))
+        group_info = self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Group info')]/../../following-sibling::div")
+        return group_info.find_element_by_xpath(f"//*[contains(text(), '{quary}')]")
 
     def __invite_to_group_via_link_element(self):
         """ Returns the element of the opeened group menue for inviting via link """
-        return {e.text: e for e in self.__get_group_segments()['participants'].find_elements_by_class_name('_2UaNq')}[
-            'Invite to group via link']
-
-    def __get_users_in_group(self):
-        """ Returns the users from an oppened group settings """
-        return self.__get_group_segments()['participants'].find_elements_by_class_name('X7YrQ')
+        return self.__get_group_info_segment('Invite to group via link')
 
     def __get_user(self, user_name):
         """ Returns the user element after the group options openned """
-        users = self.__get_users_in_group()  # get users
-        return [u for u in users if u.text.encode('UTF-8').decode('utf-8').startswith(user_name)][0]
+        return self.__get_group_info_segment(user_name)  # get users

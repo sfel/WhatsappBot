@@ -15,7 +15,7 @@ class WhatsappBotSettingsBase:
         """ Returns th chosen element from the sub menue - This function must be called after settings is called 
             choice is in ['New group', 'Profile', 'Archived', 'Starred', 'Settings', 'Log out'] """
         self.settings['menu'].click()
-        return bot.driver.find_element_by_xpath(f"//*[contains(text(), {choice})]")
+        return self.bot.driver.find_element_by_xpath(f"//*[contains(text(), '{choice}')]")
 
     def press_escape(self):
         webdriver.ActionChains(self.bot.driver).send_keys(Keys.ESCAPE).perform()
@@ -34,7 +34,6 @@ class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
         actions = ActionChains(self.bot.driver)
         actions.send_keys(quary)
         actions.perform()
-        #self.bot.driver.find_element_by_class_name('eiCXe').find_element_by_class_name('_3u328').send_keys(quary)
 
     def close_search(self):
         """ Closes the search box """
@@ -42,7 +41,7 @@ class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
 
     def click_on_first_result(self):
         """ Clicks on the first conversation """
-        bot.driver.find_element_by_xpath("//*[contains(text(), 'Chats')]/../following-sibling::div").click()
+        self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Chats')]").click()
 
 
 class WhatsappBotConversationSettings(WhatsappBotSettingsBase):
@@ -50,5 +49,6 @@ class WhatsappBotConversationSettings(WhatsappBotSettingsBase):
         self.settings = {'search' : self.bot.driver.find_element_by_xpath("//*[contains(@title, 'Search')]"),
                          'attach' : self.bot.driver.find_element_by_xpath("//*[contains(@title, 'Attach')]")}
         self.settings['menu'] =  self.settings['attach'].find_element_by_xpath("../following-sibling::div")
+        self.settings['title'] =  self.settings['search'].find_element_by_xpath("../../../preceding-sibling::div/following-sibling::div")
 
 
