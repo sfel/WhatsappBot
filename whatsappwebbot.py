@@ -10,9 +10,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
+
+import whatsapp_web_classnames
 from whatsappbotgroup import WhatsappBotGroup
 
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
+
 
 class WhatsappBotUser:
     def __init__(self, phone_number, country_prefix='972'):
@@ -52,7 +55,7 @@ class WhatsappWebBot:
             self.__send_message(bot_msg.welcome_msg)
             self.__send_message(bot_msg.invitation_link)
         except exceptions.TimeoutException:
-            if len(self.driver.find_elements_by_class_name('_2Vo52')):
+            if len(self.driver.find_elements_by_class_name(whatsapp_web_classnames.BAD_INVITATION_ELEMENT)):
                 print(f'The message - {bot_msg.invitation_link} - contains bad number')
             else:
                 print(f"Timed out waiting for page to load - {bot_msg}")
@@ -98,7 +101,9 @@ class WhatsappWebBot:
 
     def __is_invalid_link(self):
         """ Returns if a chat link what incorrect """
-        return 'This link is incorrect. Close this window and try a different link.' in [e.text for e in self.driver.find_elements_by_class_name('_2yzk')]
+        return 'This link is incorrect. Close this window and try a different link.' in [e.text for e in
+                                                                                         self.driver.find_elements_by_class_name(
+                                                                                             '_2yzk')]
 
     def __open_chat(self, chat_link):
         """ Opens a chat with unsaved number"""
@@ -113,5 +118,4 @@ class WhatsappWebBot:
             use_web_link.click()
 
         wait = WebDriverWait(self.driver, timeout=25)
-        wait.until(lambda driver: driver.find_element_by_class_name('_2y17h'))
-
+        wait.until(lambda driver: driver.find_element_by_class_name(whatsapp_web_classnames.CONVERSATION_SEARCH_BAR))

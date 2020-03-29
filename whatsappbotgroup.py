@@ -1,3 +1,4 @@
+import whatsapp_web_classnames
 from whatsappbotsetting import WhatsappBotGeneralSettings, WhatsappBotSettingsBase
 import win32clipboard
 from selenium.webdriver import ActionChains
@@ -47,7 +48,8 @@ class WhatsappBotGroup:
         sleep(1)
         self.__invite_to_group_via_link_element().click()
         sleep(1)
-        self.bot.driver.find_element_by_xpath('//*[text() = "Copy link"]').click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
+        self.bot.driver.find_element_by_xpath(
+            '//*[text() = "Copy link"]').click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
         sleep(2)
         win32clipboard.OpenClipboard()
         link = win32clipboard.GetClipboardData()
@@ -99,7 +101,7 @@ class WhatsappBotGroup:
     def __get_group_segments(self):
         """ Returns the segments of an open group settings """
         return dict(zip(['header', 'description', 'shared_media', 'options', 'participants', 'exit', 'report'],
-                        self.bot.driver.find_elements_by_class_name('_1CRb5')))
+                        self.bot.driver.find_elements_by_class_name(whatsapp_web_classnames.GROUP_SEGMENT)))
 
     def __invite_to_group_via_link_element(self):
         """ Returns the element of the opened group menue for inviting via link """
@@ -107,8 +109,9 @@ class WhatsappBotGroup:
             '//*[text() = "Invite to group via link"]')
 
     def __get_users_in_group(self):
-        """ Returns the users from an oppened group settings """
-        return self.__get_group_segments()['participants'].find_elements_by_class_name('_3FXB1')
+        """ Returns the users from an open group settings """
+        return self.__get_group_segments()['participants'].find_elements_by_class_name(
+            whatsapp_web_classnames.GROUP_PARTICIPANT_NAME)
 
     def __get_user(self, user_name):
         """ Returns the user element after the group options openned """

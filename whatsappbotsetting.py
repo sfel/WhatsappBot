@@ -1,6 +1,8 @@
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 
+import whatsapp_web_classnames
+
 GROUP_SETTINGS_XPATH = '//header//div[@role="button"]/parent::div'
 
 
@@ -41,7 +43,7 @@ class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
 
     def click_on_first_result(self):
         """ Clicks on the first conversation """
-        self.bot.driver.find_element_by_class_name('_3vpWv').click()  # for more options use find_elements... method
+        self.bot.driver.find_element_by_class_name(whatsapp_web_classnames.CONVERSATION).click()  # for more options use find_elements... method
 
     def _get_groups_menu(self):
         """ Returns the groups menu html node """
