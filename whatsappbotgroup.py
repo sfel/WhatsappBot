@@ -47,8 +47,7 @@ class WhatsappBotGroup:
         sleep(1)
         self.__invite_to_group_via_link_element().click()
         sleep(1)
-        {e.text: e for e in self.bot.driver.find_element_by_class_name('rK2ei').find_elements_by_class_name('_26JG5')}[
-            'Copy link'].click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
+        self.bot.driver.find_element_by_xpath('//*[text() = "Copy link"]').click()  # 'Send link via WhatsApp', 'Copy link','Revoke link'
         sleep(2)
         win32clipboard.OpenClipboard()
         link = win32clipboard.GetClipboardData()

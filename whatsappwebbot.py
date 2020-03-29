@@ -79,17 +79,20 @@ class WhatsappWebBot:
         """ Connects to the browser's driver, Opens whatsapp web and waits for the user to scann the QR code """
         self.driver = webdriver.Chrome(executable_path=DRIVER_PATH)
         self.driver.get('https://web.whatsapp.com/')
-        input("Scan the QR code then press enter to continue")
+        wait = WebDriverWait(self.driver, timeout=60)
+        wait.until(lambda driver: driver.find_element_by_xpath(
+            "//*[contains(text(), 'Search or start new chat')]"))  # wait until the contact search element
         sleep(1)
 
     def __click_send(self):
         """Sends a message """
-        send_button = self.driver.find_element_by_class_name('_3M-N-')
+        send_button = self.driver.find_element_by_xpath("//*[span[@data-icon='send']]")
         send_button.click()
 
     def __send_message(self, content):
         """ Send's a message """
-        msg_box = self.driver.find_elements_by_class_name('_3u328')[1]
+        msg_box = self.driver.find_element_by_xpath("//*[contains(text(), 'Type a message')]").find_element_by_xpath(
+            '../..')
         msg_box.send_keys(content)
         self.__click_send()
 
@@ -110,5 +113,5 @@ class WhatsappWebBot:
             use_web_link.click()
 
         wait = WebDriverWait(self.driver, timeout=25)
-        wait.until(lambda driver: driver.find_element_by_class_name('_3u328'))
+        wait.until(lambda driver: driver.find_element_by_class_name('_2y17h'))
 
