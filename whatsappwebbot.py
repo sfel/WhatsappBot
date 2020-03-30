@@ -13,6 +13,7 @@ from time import sleep
 from whatsappbotgroup import WhatsappBotGroup
 
 DRIVER_PATH = r'.\chromedriver_win32\chromedriver.exe'
+IMPLICIT_WAIT_SECONDS = 60
 
 
 class WhatsappBotUser:
@@ -84,6 +85,7 @@ class WhatsappWebBot:
     def __connect(self):
         """ Connects to the browser's driver, Opens whatsapp web and waits for the user to scann the QR code """
         self.driver = webdriver.Chrome(executable_path=DRIVER_PATH)
+        self.driver.implicitly_wait(IMPLICIT_WAIT_SECONDS)
         self.driver.get('https://web.whatsapp.com/')
         wait = WebDriverWait(self.driver, timeout=60)
         wait.until(lambda driver: driver.find_element_by_xpath(
