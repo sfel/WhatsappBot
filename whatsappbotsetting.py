@@ -1,3 +1,8 @@
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium import webdriver
+
+
 class WhatsappBotSettingsBase:
     def __init__(self, bot):
         self.bot = bot
@@ -6,30 +11,42 @@ class WhatsappBotSettingsBase:
     def settings(self):
         pass
 
+    def sub_menue(self, choice):
+        """ Returns th chosen element from the sub menue - This function must be called after settings is called 
+            choice is in ['New group', 'Profile', 'Archived', 'Starred', 'Settings', 'Log out'] """
+        self.settings['menu'].click()
+        return self.bot.driver.find_element_by_xpath(f"//*[contains(text(), '{choice}')]")
+
+    def press_escape(self):
+        webdriver.ActionChains(self.bot.driver).send_keys(Keys.ESCAPE).perform()
+
 
 class WhatsappBotGeneralSettings(WhatsappBotSettingsBase):
     def settings(self):
-        settings = dict(zip(['status', 'new_chat', 'general_menu', 'search', 'attach', 'conversation_menu'],
-                            self.bot.driver.find_elements_by_class_name('_3j8Pd')))
-        self.settings = dict((k, settings[k]) for k in ('status', 'new_chat', 'general_menu'))
-        self.settings['menu'] = self.settings.pop('general_menu')
+        self.settings = {'status': self.bot.driver.find_element_by_xpath("//*[contains(@title, 'Status')]"),
+                         'new_chat': self.bot.driver.find_element_by_xpath("//*[contains(@title, 'New chat')]")}
+        self.settings['menu'] = self.settings['new_chat'].find_element_by_xpath("../following-sibling::div")
 
-    def sub_menue(self):
-        """ Returns dictionary of sub menue - This function must be called after settings is called """
-        self.settings['menu'].click()
-        return dict(zip(['new_group', 'profile', 'archieved', 'starred', 'settings', 'log_out'],
-                        self.bot.driver.find_elements_by_class_name('_3cfBY')))
+    def write_in_search(self, query):
+        """ Types query to the general search box """
+        self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Search or start new chat')]/..").click()
+        actions = ActionChains(self.bot.driver)
+        actions.send_keys(query)
+        actions.perform()
+
+    def close_search(self):
+        """ Closes the search box """
+        self.press_escape()
+
+    def click_on_first_result(self):
+        """ Clicks on the first conversation """
+        self.bot.driver.find_element_by_xpath("//*[contains(text(), 'Chats')]").click()
 
 
 class WhatsappBotConversationSettings(WhatsappBotSettingsBase):
     def settings(self):
-        settings = dict(zip(['status', 'new_chat', 'general_menu', 'search', 'attach', 'conversation_menu'],
-                            self.bot.driver.find_elements_by_class_name('_3j8Pd')))
-        self.settings = dict((k, settings[k]) for k in ('search', 'attach', 'conversation_menu'))
-        self.settings['menu'] = self.settings.pop('conversation_menu')
-
-    def sub_menue(self):
-        """ Returns dictionary of sub menue - This function must be called after settings is called """
-        self.settings['menu'].click()
-        return dict(zip(['new_group', 'profile', 'archieved', 'starred', 'settings', 'log_out'],
-                        self.bot.driver.find_elements_by_class_name('_3cfBY')))
+        self.settings = {'search': self.bot.driver.find_element_by_xpath("//*[contains(@title, 'Search')]"),
+                         'attach': self.bot.driver.find_element_by_xpath("//*[contains(@title, 'Attach')]")}
+        self.settings['menu'] = self.settings['attach'].find_element_by_xpath("../following-sibling::div")
+        self.settings['title'] = self.settings['search'].find_element_by_xpath(
+            "../../../preceding-sibling::div/following-sibling::div")
